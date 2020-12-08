@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define MAX_STRINGS_LEN 50
@@ -23,7 +24,7 @@ typedef struct alarm
 {
     int equipament_id; // id of the associated Equipament
     char description[MAX_STRINGS_LEN];
-    char classification[7];// Low, Medium, Hight
+    char classification[7];// Low, Medium or Hight
     char registration_date[11];// mm-dd-yyyy
     char in_date[11];// mm-dd-yyyy
     char out_date[11];// mm-dd-yyyy
@@ -36,13 +37,16 @@ int last_id = 0;
 
 // prototypes
 void load_files(equipament *equipaments, alarm *alarms);
-void save_files(equipament *equipaments, alarm *alarms);
+void save_equipaments(equipament *equipaments);
+void save_alarms(alarm *alarms);
 enum menu_1 display_menu_1(void);
 void free_equipaments(equipament *equipaments);
 void free_alarms(alarm *alarms);
 void crud_equipaments(equipament *equipaments);
 void crud_alarms(alarm *alarms);
 void manage_alarms(alarm *alarms);
+void add_equipament(equipament *equipaments);
+void show_equipament(equipament *equipaments);
 
 int main()
 {
@@ -72,7 +76,6 @@ int main()
                 break;
             case Exit:
                 //saving progress, cleaning up and leaving
-                save_files(&equipaments, &alarms);
                 free_equipaments(equipaments.next);
                 free_alarms(alarms.next);
                 return 0;
@@ -120,10 +123,115 @@ enum menu_1 display_menu_1(void)
     return ans;
 }
 
+//display the firth menu and returns the user answer
+enum menu_1_12 display_menu_1_1(void)
+{
+    int ans;
+
+    system("clear");
+    printf("%d - See all Equipaments\n", See);
+    printf("%d - Add new Equipament\n", Add);
+    printf("%d - Remove Equipament\n", Remove);
+    printf("%d - Return\n", Back);
+    printf("Option: ");
+    scanf("%d", &ans);
+    getchar();
+    
+    return ans;
+}
+
+void add_equipament(equipament *equipaments)
+{
+    //adding to the beggining of the linked list
+    equipament *tmp = malloc(sizeof(equipament));
+    tmp->next = equipaments->next;
+    equipaments->next = tmp;
+    tmp->id = ++last_id;
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    sprintf(tmp->registration_date,"%02d-%02d-%d", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900);
+    
+    system("clear");
+    
+    printf("Equipament name: ");
+    scanf("%[^\n]", tmp->name);
+    getchar();
+
+    printf("Equipament serial number: ");
+    scanf("%[^\n]", tmp->serial_number);
+    getchar();
+
+    int ans;
+    do
+    {
+        printf("\n0 - Voltage\n");
+        printf("1 - Current\n");
+        printf("2 - Oil\n");
+        printf("Equipament type(0/1/2): ");
+        scanf("%d", &ans);
+        getchar();
+        if (ans < 0 || ans > 2)
+            printf("\nResposta invalida!!\n");
+    } while (ans < 0 || ans > 2);
+
+    switch (ans)
+    {
+        case 0:
+            strcpy(tmp->type, "Voltage");
+            break;
+        case 1:
+            strcpy(tmp->type, "Current");
+            break; 
+        case 2:
+            strcpy(tmp->type, "Oil");
+            break;
+    }
+
+    save_equipaments(equipaments);
+    system("clear");
+    printf("New equipament saved, press <Enter> to continue\n");
+    getchar();
+}
+
+void show_equipament(equipament *equipaments)
+{
+    system("clear");
+    while (equipaments->next)
+    {
+        equipaments = equipaments->next;
+        printf("Equipament %d: \n", equipaments->id);
+        printf("\tName:              %s\n", equipaments->name);
+        printf("\tSerial number:     %s\n", equipaments->serial_number);
+        printf("\tType:              %s\n", equipaments->type);
+        printf("\tRegistration date: %s\n\n", equipaments->registration_date);
+    }
+
+    printf("\n\nPress <enter> to return.");
+    getchar();
+}
+
 //display and implemented options for the user manege the equipament list
 void crud_equipaments(equipament *equipaments)
 {
-    // TO DO
+    switch (display_menu_1_1())
+        {
+            case See:
+                show_equipament(equipaments);
+                break;
+            case Add:
+                add_equipament(equipaments);
+                break; 
+            case Remove:
+                // TO DO
+                break;
+            case Back:
+                return;
+            default:
+                printf("Ivalid Option, press <enter> to return");
+                getchar();
+                break;
+        }
 }
 
 //display and implemented options for the user manege the alarm list
@@ -145,8 +253,14 @@ void load_files(equipament *equipaments, alarm *alarms)
     // TO DO
 }
 
-//save the corrent data in the equipaments.txt and alarms.txt files
-void save_files(equipament *equipaments, alarm *alarms)
+//save the corrent data in the equipaments.txt file
+void save_equipaments(equipament *equipaments)
+{
+    // TO DO
+}
+
+//save the corrent data in the alarms.txt file
+void save_alarms(alarm *alarms)
 {
     // TO DO
 }
