@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a system for recording equipment and alerts related to them. For more details see the specification file.
+This is a system for recording equipment and alerts related to them. For more details see the [specification file]('./../specification_files/Firmware%20-%20Especificação%20Prova%20Prática%20Programador.pdf).
 
 ## Compilation
 
@@ -15,3 +15,7 @@ gcc registration_system.c -o registration_system
 ```bash
 ./registration_system
 ```
+
+## Observations
+
+* The maximum length of any string was defined as 50 chars, if that is not enough that can be changed in the `#define MAX_STRINGS_LEN 50`
