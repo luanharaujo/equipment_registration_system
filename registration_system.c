@@ -5,14 +5,14 @@
 
 #define MAX_STRINGS_LEN 50
 
-enum menu_1{Equipamens, All_alerts, On_alerts, Exit};
+enum menu_1{Equipamens, All_Alarms, On_Alarms, Exit};
 enum menu_1_12{See, Add, Remove, Back};
 enum menu_1_3{On_Off, Description, Rating, Search, Most_3, Back2};
 
 // struct to store equipments informations, it will be implemented as a linked list
 typedef struct equipment
 {
-    int id; // id to association whit the Alerts 
+    int id; // id to association whit the Alarms 
     char name[MAX_STRINGS_LEN];
     char serial_number[MAX_STRINGS_LEN];
     char type[8];// Voltage, Current or Oil
@@ -79,10 +79,10 @@ int main()
             case Equipamens:
                     crud_equipments(&equipments, &alarms);
                 break;
-            case All_alerts:
+            case All_Alarms:
                     crud_alarms(&alarms, &equipments);
                 break; 
-            case On_alerts:
+            case On_Alarms:
                     manage_alarms(&equipments, &alarms);
                 break;
             case Exit:
@@ -123,10 +123,10 @@ enum menu_1 display_menu_1(void)
     int ans;
 
     system("clear");
-    printf("%d - See, Add or Remove equipments\n", Equipamens);
-    printf("%d - See, Add or Remove Alerts\n", All_alerts);
-    printf("%d - Manege Alerts\n", On_alerts);
-    printf("%d - Exite\n", Exit);
+    printf("%d - See, Add or Remove Equipments\n", Equipamens);
+    printf("%d - See, Add or Remove Alarms\n", All_Alarms);
+    printf("%d - Manege Alarms\n", On_Alarms);
+    printf("%d - Exit\n", Exit);
     printf("Option: ");
     scanf("%d", &ans);
     getchar();
@@ -231,12 +231,12 @@ void remove_equipament(equipment *equipments, alarm *alarms)
     
     while (aux->next)
     {
-        aux = aux->next;
-        if (aux->id == n)
+        if (aux->next->id == n)
             break;
+        aux = aux->next;
     }
-
-    if (aux->id != n)
+    
+    if (aux->next->id != n)
     {
         printf("Equipment not found\n");
         printf("Press <enter> to return");
@@ -244,6 +244,7 @@ void remove_equipament(equipment *equipments, alarm *alarms)
     }
     else
     {
+        
         alarm *aux3 = alarms;
         while (aux3->next)
         { 
@@ -254,15 +255,19 @@ void remove_equipament(equipment *equipments, alarm *alarms)
                 free(aux4);
             }
                      
-            aux3 = aux3->next;    
+            aux3 = aux3->next;
+            if (!aux3)
+                break;    
         }
+
         equipment *aux2 = aux->next;
         aux->next = aux->next->next;
         free(aux2);
-
+       
         save_alarms(alarms);
+        
         save_equipments(equipments);
-
+        
         printf("Equipment and related alarms successfully deleted. New list saved to file.\n");
         printf("Press <enter> to return");
         getchar();
@@ -386,13 +391,13 @@ void show_alarm(alarm *alarms)
     while (alarms->next)
     {
         alarms = alarms->next;
-        printf("Alarme  %d: \n", alarms->id);
+        printf("Alarm  %d: \n", alarms->id);
         printf("\tDescription:       %s\n", alarms->description);
         printf("\tRating:    %s\n", alarms->rating);
         printf("\tRegistration Date: %s\n", alarms->registration_date);
         printf("\tIn Date:           %s\n", alarms->in_date);
         printf("\tOut Date:          %s\n", alarms->out_date);
-        printf("\tThis alarm is related the %d equipament\n", alarms->equipament_id);
+        printf("\tThis alarm is related the equipament %d\n", alarms->equipament_id);
         printf("\tThis alarm was activated %d times\n\n", alarms->actions_count);
     }
 }
@@ -400,7 +405,7 @@ void show_alarm(alarm *alarms)
 void remove_alarm(alarm *alarms)
 {
     int n;
-    printf("Number of Alarme to remove: ");
+    printf("Number of Alarm to remove: ");
     scanf("%d", &n);
     getchar();
 
@@ -408,12 +413,12 @@ void remove_alarm(alarm *alarms)
 
     while (aux->next)
     {
-        aux = aux->next;
-        if (aux->id == n)
+        if (aux->next->id == n)
             break;
+        aux = aux->next;
     }
 
-    if (aux->id != n)
+    if (aux->next->id != n)
     {
         printf("Alarm not found\n");
         printf("Press <enter> to return");
@@ -611,7 +616,7 @@ enum menu_1_3 display_menu_1_3(void)
     printf("%d - View all alarms by rating\n", Rating);
     printf("%d - Search alarm\n", Search);
     printf("%d - See 3 most frequent alarms\n", Most_3);
-    printf("%d - Return\n", Back);
+    printf("%d - Return\n", Back2);
     printf("Option: ");
     scanf("%d", &ans);
     getchar();
@@ -619,7 +624,7 @@ enum menu_1_3 display_menu_1_3(void)
     return ans;
 }
 
-// display and implemented options for the user see, filter an change the alerts
+// display and implemented options for the user see, filter an change the Alarms
 void manage_alarms(equipment *equipments, alarm *alarms)
 {
     switch (display_menu_1_3())
