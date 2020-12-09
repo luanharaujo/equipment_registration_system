@@ -222,7 +222,7 @@ void remove_equipament(equipament *equipaments)
     while (aux->next && aux->next->id != n)
         aux = aux->next;
     
-    if(aux->next->id != n)
+    if (aux->next->id != n)
     {
         printf("Equipment not found\n");
         printf("Press <enter> to return");
@@ -291,6 +291,22 @@ void load_files(equipament *equipaments, alarm *alarms)
 //save the corrent data in the equipaments.txt file
 void save_equipaments(equipament *equipaments)
 {
+    FILE *fp = fopen("equipaments.txt", "w");
+
+    fprintf(fp, "ID,NAME,SERIAL NUMBER,TYPE,REGISTRATION_DATE\n");
+    
+    while (equipaments->next)
+    {
+        equipaments = equipaments->next;
+
+        fprintf(fp, "%d,", equipaments->id);
+        fprintf(fp, "%s,", equipaments->name);
+        fprintf(fp, "%s,", equipaments->serial_number);
+        fprintf(fp, "%s,", equipaments->type);
+        fprintf(fp, "%s\n", equipaments->registration_date);
+    }
+
+    fclose(fp);
     // TO DO
 }
 

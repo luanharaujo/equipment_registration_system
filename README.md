@@ -19,3 +19,4 @@ gcc registration_system.c -o registration_system
 ## Observations
 
 * The maximum length of any string was defined as 50 chars, if that is not enough that can be changed in the `#define MAX_STRINGS_LEN 50`
+* Since the text files are formatted as csv, there should be no commas in any of the fields.
