@@ -7,6 +7,7 @@
 
 enum menu_1{Equipamens, All_alerts, On_alerts, Exit};
 enum menu_1_12{See, Add, Remove, Back};
+enum menu_1_3{On_Off, Description, Rating, Search, Most_3, Back2};
 
 // struct to store equipaments informations, it will be implemented as a linked list
 typedef struct equipament
@@ -25,7 +26,7 @@ typedef struct alarm
     int id; //necessary to the menus
     int equipament_id; // id of the associated Equipament
     char description[MAX_STRINGS_LEN];
-    char classification[7];// Low, Medium or Hight
+    char rating[7];// Low, Medium or Hight
     char registration_date[11];// mm-dd-yyyy
     char in_date[11];// mm-dd-yyyy
     char out_date[11];// mm-dd-yyyy
@@ -46,7 +47,7 @@ void free_equipaments(equipament *equipaments);
 void free_alarms(alarm *alarms);
 void crud_equipaments(equipament *equipaments);
 void crud_alarms(alarm *alarms, equipament *equipaments);
-void manage_alarms(alarm *alarms);
+void manage_alarms(equipament *equipaments, alarm *alarms);
 void add_equipament(equipament *equipaments);
 void show_equipament(equipament *equipaments);
 void remove_equipament(equipament *equipaments);
@@ -55,6 +56,7 @@ void show_alarm(alarm *alarms);
 void remove_alarm(alarm *alarms);
 enum menu_1_12 display_menu_1_1(void);
 enum menu_1_12 display_menu_1_2(void);
+enum menu_1_3 display_menu_1_3(void);
 int id_exist(int id, equipament *equipaments);
 
 int main()
@@ -81,7 +83,7 @@ int main()
                     crud_alarms(&alarms, &equipaments);
                 break; 
             case On_alerts:
-                    manage_alarms(&alarms);
+                    manage_alarms(&equipaments, &alarms);
                 break;
             case Exit:
                 //saving progress, cleaning up and leaving
@@ -258,7 +260,9 @@ void remove_equipament(equipament *equipaments)
 //display and implemented options for the user manege the equipament list
 void crud_equipaments(equipament *equipaments)
 {
-    switch (display_menu_1_1())
+    while (1)
+    {
+        switch (display_menu_1_1())
         {
             case See:
                 show_equipament(equipaments);
@@ -279,6 +283,7 @@ void crud_equipaments(equipament *equipaments)
                 getchar();
                 break;
         }
+    }
 }
 
 //return 1 if there is a equipament with maches the id
@@ -337,7 +342,7 @@ void add_alarm(alarm *alarms, equipament *equipaments)
         printf("\n0 - Low\n");
         printf("1 - Medium\n");
         printf("2 - Hight\n");
-        printf("Alarm classification(0/1/2): ");
+        printf("Alarm rating(0/1/2): ");
         scanf("%d", &ans);
         getchar();
         if (ans < 0 || ans > 2)
@@ -347,13 +352,13 @@ void add_alarm(alarm *alarms, equipament *equipaments)
     switch (ans)
     {
         case 0:
-            strcpy(tmp->classification, "Low");
+            strcpy(tmp->rating, "Low");
             break;
         case 1:
-            strcpy(tmp->classification, "Medium");
+            strcpy(tmp->rating, "Medium");
             break; 
         case 2:
-            strcpy(tmp->classification, "Hight");
+            strcpy(tmp->rating, "Hight");
             break;
     }
 
@@ -371,7 +376,7 @@ void show_alarm(alarm *alarms)
         alarms = alarms->next;
         printf("Alarme  %d: \n", alarms->id);
         printf("\tDescription:       %s\n", alarms->description);
-        printf("\tClassification:    %s\n", alarms->classification);
+        printf("\tRating:    %s\n", alarms->rating);
         printf("\tRegistration Date: %s\n", alarms->registration_date);
         printf("\tIn Date:           %s\n", alarms->in_date);
         printf("\tOut Date:          %s\n", alarms->out_date);
@@ -436,7 +441,9 @@ enum menu_1_12 display_menu_1_2(void)
 //display and implemented options for the user manege the alarm list
 void crud_alarms(alarm *alarms, equipament *equipaments)
 {
-    switch (display_menu_1_2())
+    while (1)
+    {
+        switch (display_menu_1_2())
         {
             case See:
                 show_alarm(alarms);
@@ -457,6 +464,7 @@ void crud_alarms(alarm *alarms, equipament *equipaments)
                 getchar();
                 break;
         }
+    }
 }
 
 
@@ -506,10 +514,10 @@ void load_files(equipament *equipaments, alarm *alarms)
     else
     {
         int id, equipament_id, actions_count;
-        char description[MAX_STRINGS_LEN], classification[7], registration_date[11], in_date[11], out_date[11];
+        char description[MAX_STRINGS_LEN], rating[7], registration_date[11], in_date[11], out_date[11];
 
-        fscanf(fp, "ID,EQUIPMENT ID,DESCRIPTION,CLASSIFICATION,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
-        while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d\n", &id, &equipament_id, description, classification, registration_date, in_date, out_date, &actions_count) != EOF)
+        fscanf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
+        while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d\n", &id, &equipament_id, description, rating, registration_date, in_date, out_date, &actions_count) != EOF)
         {
             alarms->next = malloc(sizeof(alarm));
             alarms = alarms->next;
@@ -523,7 +531,7 @@ void load_files(equipament *equipaments, alarm *alarms)
             alarms->actions_count = actions_count;
 
             strcpy(alarms->description, description);
-            strcpy(alarms->classification, classification);
+            strcpy(alarms->rating, rating);
             strcpy(alarms->registration_date, registration_date);
             strcpy(alarms->in_date, in_date);
             strcpy(alarms->out_date, out_date);
@@ -562,7 +570,7 @@ void save_alarms(alarm *alarms)
 {
     FILE *fp = fopen("alarms.txt", "w");
 
-    fprintf(fp, "ID,EQUIPMENT ID,DESCRIPTION,CLASSIFICATION,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
+    fprintf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
     
     while (alarms->next)
     {
@@ -571,7 +579,7 @@ void save_alarms(alarm *alarms)
         fprintf(fp, "%d,", alarms->id);
         fprintf(fp, "%d,", alarms->equipament_id);
         fprintf(fp, "%s,", alarms->description);
-        fprintf(fp, "%s,", alarms->classification);
+        fprintf(fp, "%s,", alarms->rating);
         fprintf(fp, "%s,", alarms->registration_date);
         fprintf(fp, "%s,", alarms->in_date);
         fprintf(fp, "%s,", alarms->out_date);
@@ -581,8 +589,49 @@ void save_alarms(alarm *alarms)
     fclose(fp);
 }
 
-//display and implemented options for the user see, filter an change the alerts
-void manage_alarms(alarm *alarms)
+enum menu_1_3 display_menu_1_3(void)
 {
-    // TO DO
+    int ans;
+
+    system("clear");
+    printf("%d - Enable and disable alarms\n", On_Off);
+    printf("%d - See all alarms by description\n", Description);
+    printf("%d - View all alarms by rating\n", Rating);
+    printf("%d - Search alarm\n", Search);
+    printf("%d - See 3 most frequent alarms\n", Most_3);
+    printf("%d - Return\n", Back);
+    printf("Option: ");
+    scanf("%d", &ans);
+    getchar();
+    
+    return ans;
+}
+
+//display and implemented options for the user see, filter an change the alerts
+void manage_alarms(equipament *equipaments, alarm *alarms)
+{
+    switch (display_menu_1_3())
+    {
+        case On_Off:
+            // TO DO
+            break;
+        case Description:
+            // TO DO
+            break; 
+        case Rating:
+            // TO DO
+            break;
+        case Search:
+            // TO DO
+            break;
+        case Most_3:
+            // TO DO
+            break;
+        case Back2:
+            return;
+        default:
+            printf("Ivalid Option, press <enter> to return");
+            getchar();
+            break;
+    }
 }
