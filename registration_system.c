@@ -9,21 +9,21 @@ enum menu_1{Equipamens, All_alerts, On_alerts, Exit};
 enum menu_1_12{See, Add, Remove, Back};
 enum menu_1_3{On_Off, Description, Rating, Search, Most_3, Back2};
 
-// struct to store equipaments informations, it will be implemented as a linked list
-typedef struct equipament
+// struct to store equipments informations, it will be implemented as a linked list
+typedef struct equipment
 {
     int id; // id to association whit the Alerts 
     char name[MAX_STRINGS_LEN];
     char serial_number[MAX_STRINGS_LEN];
     char type[8];// Voltage, Current or Oil
     char registration_date[11];// mm-dd-yyyy
-    struct equipament *next;
-} equipament;
+    struct equipment *next;
+} equipment;
 
 // struct to store alarm informations, it will be implemented as a linked list
 typedef struct alarm
 {
-    int id; //necessary to the menus
+    int id; // necessary to the menus
     int equipament_id; // id of the associated Equipament
     char description[MAX_STRINGS_LEN];
     char rating[7];// Low, Medium or Hight
@@ -39,37 +39,37 @@ int last_id = 0;
 int last_alarm_id = 0;
 
 // prototypes
-void load_files(equipament *equipaments, alarm *alarms);
-void save_equipaments(equipament *equipaments);
+void load_files(equipment *equipments, alarm *alarms);
+void save_equipments(equipment *equipments);
 void save_alarms(alarm *alarms);
 enum menu_1 display_menu_1(void);
-void free_equipaments(equipament *equipaments);
+void free_equipments(equipment *equipments);
 void free_alarms(alarm *alarms);
-void crud_equipaments(equipament *equipaments);
-void crud_alarms(alarm *alarms, equipament *equipaments);
-void manage_alarms(equipament *equipaments, alarm *alarms);
-void add_equipament(equipament *equipaments);
-void show_equipament(equipament *equipaments);
-void remove_equipament(equipament *equipaments);
-void add_alarm(alarm *alarms, equipament *equipaments);
+void crud_equipments(equipment *equipments, alarm *alarms);
+void crud_alarms(alarm *alarms, equipment *equipments);
+void manage_alarms(equipment *equipments, alarm *alarms);
+void add_equipament(equipment *equipments);
+void show_equipament(equipment *equipments);
+void remove_equipament(equipment *equipments, alarm *alarms);
+void add_alarm(alarm *alarms, equipment *equipments);
 void show_alarm(alarm *alarms);
 void remove_alarm(alarm *alarms);
 enum menu_1_12 display_menu_1_1(void);
 enum menu_1_12 display_menu_1_2(void);
 enum menu_1_3 display_menu_1_3(void);
-int id_exist(int id, equipament *equipaments);
+int id_exist(int id, equipment *equipments);
 
 int main()
 {
     // init linked lists
-    equipament equipaments;
-    equipaments.next = NULL;
+    equipment equipments;
+    equipments.next = NULL;
     
     alarm alarms;
     alarms.next = NULL;
 
     // triing to load pre-existing files
-    load_files(&equipaments, &alarms);
+    load_files(&equipments, &alarms);
 
     // only closes if requested by the user through the menu
     while (1) 
@@ -77,17 +77,17 @@ int main()
         switch (display_menu_1())
         {
             case Equipamens:
-                    crud_equipaments(&equipaments);
+                    crud_equipments(&equipments, &alarms);
                 break;
             case All_alerts:
-                    crud_alarms(&alarms, &equipaments);
+                    crud_alarms(&alarms, &equipments);
                 break; 
             case On_alerts:
-                    manage_alarms(&equipaments, &alarms);
+                    manage_alarms(&equipments, &alarms);
                 break;
             case Exit:
                 //saving progress, cleaning up and leaving
-                free_equipaments(equipaments.next);
+                free_equipments(equipments.next);
                 free_alarms(alarms.next);
                 return 0;
 
@@ -101,12 +101,12 @@ int main()
 
 }
 
-void free_equipaments(equipament *equipaments)
+void free_equipments(equipment *equipments)
 {
-    if (equipaments == NULL)
+    if (equipments == NULL)
         return;
-    free_equipaments(equipaments->next);
-    free(equipaments);
+    free_equipments(equipments->next);
+    free(equipments);
 }
 
 void free_alarms(alarm *alarms)
@@ -117,13 +117,13 @@ void free_alarms(alarm *alarms)
     free(alarms);
 }
 
-//display the firth menu and returns the user answer
+// display the firth menu and returns the user answer
 enum menu_1 display_menu_1(void)
 {
     int ans;
 
     system("clear");
-    printf("%d - See, Add or Remove Equipaments\n", Equipamens);
+    printf("%d - See, Add or Remove equipments\n", Equipamens);
     printf("%d - See, Add or Remove Alerts\n", All_alerts);
     printf("%d - Manege Alerts\n", On_alerts);
     printf("%d - Exite\n", Exit);
@@ -134,13 +134,13 @@ enum menu_1 display_menu_1(void)
     return ans;
 }
 
-//CRUD menu to the equipaments
+// CRUD menu to the equipments
 enum menu_1_12 display_menu_1_1(void)
 {
     int ans;
 
     system("clear");
-    printf("%d - See all Equipaments\n", See);
+    printf("%d - See all equipments\n", See);
     printf("%d - Add new Equipament\n", Add);
     printf("%d - Remove Equipament\n", Remove);
     printf("%d - Return\n", Back);
@@ -151,12 +151,12 @@ enum menu_1_12 display_menu_1_1(void)
     return ans;
 }
 
-void add_equipament(equipament *equipaments)
+void add_equipament(equipment *equipments)
 {
-    //adding to the beggining of the linked list
-    equipament *tmp = malloc(sizeof(equipament));
-    tmp->next = equipaments->next;
-    equipaments->next = tmp;
+    // adding to the beggining of the linked list
+    equipment *tmp = malloc(sizeof(equipment));
+    tmp->next = equipments->next;
+    equipments->next = tmp;
     tmp->id = ++last_id;
 
     time_t t = time(NULL);
@@ -165,11 +165,11 @@ void add_equipament(equipament *equipaments)
     
     system("clear");
     
-    printf("Equipament name: ");
+    printf("equipment name: ");
     scanf("%[^\n]", tmp->name);
     getchar();
 
-    printf("Equipament serial number: ");
+    printf("equipment serial number: ");
     scanf("%[^\n]", tmp->serial_number);
     getchar();
 
@@ -179,7 +179,7 @@ void add_equipament(equipament *equipaments)
         printf("\n0 - Voltage\n");
         printf("1 - Current\n");
         printf("2 - Oil\n");
-        printf("Equipament type(0/1/2): ");
+        printf("equipment type(0/1/2): ");
         scanf("%d", &ans);
         getchar();
         if (ans < 0 || ans > 2)
@@ -199,35 +199,35 @@ void add_equipament(equipament *equipaments)
             break;
     }
 
-    save_equipaments(equipaments);
+    save_equipments(equipments);
     system("clear");
-    printf("New equipament saved, press <Enter> to continue\n");
+    printf("New equipment saved, press <Enter> to continue\n");
     getchar();
 }
 
-void show_equipament(equipament *equipaments)
+void show_equipament(equipment *equipments)
 {
     system("clear");
-    while (equipaments->next)
+    while (equipments->next)
     {
-        equipaments = equipaments->next;
-        printf("Equipament %d: \n", equipaments->id);
-        printf("\tName:              %s\n", equipaments->name);
-        printf("\tSerial number:     %s\n", equipaments->serial_number);
-        printf("\tType:              %s\n", equipaments->type);
-        printf("\tRegistration date: %s\n\n", equipaments->registration_date);
+        equipments = equipments->next;
+        printf("equipment %d: \n", equipments->id);
+        printf("\tName:              %s\n", equipments->name);
+        printf("\tSerial number:     %s\n", equipments->serial_number);
+        printf("\tType:              %s\n", equipments->type);
+        printf("\tRegistration date: %s\n\n", equipments->registration_date);
     }
 
 }
 
-void remove_equipament(equipament *equipaments)
+void remove_equipament(equipment *equipments, alarm *alarms)
 {
     int n;
-    printf("Number of Equipament to remove: ");
+    printf("Number of equipment to remove: ");
     scanf("%d", &n);
     getchar();
 
-    equipament *aux = equipaments;
+    equipment *aux = equipments;
     
     while (aux->next)
     {
@@ -244,37 +244,49 @@ void remove_equipament(equipament *equipaments)
     }
     else
     {
-        // TO DO: delete related alarms
-        equipament *aux2 = aux->next;
+        alarm *aux3 = alarms;
+        while (aux3->next)
+        { 
+            if (aux3->next->equipament_id == n)
+            {
+                alarm *aux4 = aux3->next;
+                aux3->next = aux3->next->next;
+                free(aux4);
+            }
+                     
+            aux3 = aux3->next;    
+        }
+        equipment *aux2 = aux->next;
         aux->next = aux->next->next;
         free(aux2);
 
-        save_equipaments(equipaments);
+        save_alarms(alarms);
+        save_equipments(equipments);
 
-        printf("Equipment successfully deleted. New list saved to file.\n");
+        printf("Equipment and related alarms successfully deleted. New list saved to file.\n");
         printf("Press <enter> to return");
         getchar();
     }
 }
 
-//display and implemented options for the user manege the equipament list
-void crud_equipaments(equipament *equipaments)
+// display and implemented options for the user manege the equipment list
+void crud_equipments(equipment *equipments, alarm *alarms)
 {
     while (1)
     {
         switch (display_menu_1_1())
         {
             case See:
-                show_equipament(equipaments);
+                show_equipament(equipments);
                 printf("\n\nPress <enter> to return.");
                 getchar();
                 break;
             case Add:
-                add_equipament(equipaments);
+                add_equipament(equipments);
                 break; 
             case Remove:
-                show_equipament(equipaments);
-                remove_equipament(equipaments);
+                show_equipament(equipments);
+                remove_equipament(equipments, alarms);
                 break;
             case Back:
                 return;
@@ -286,22 +298,22 @@ void crud_equipaments(equipament *equipaments)
     }
 }
 
-//return 1 if there is a equipament with maches the id
-//returns 0 otherwise 
-int id_exist(int id, equipament *equipaments)
+// return 1 if there is a equipment with maches the id
+// returns 0 otherwise 
+int id_exist(int id, equipment *equipments)
 {
-    while(equipaments->next)
+    while(equipments->next)
     {
-        equipaments = equipaments->next;
-        if (equipaments->id == id)
+        equipments = equipments->next;
+        if (equipments->id == id)
             return 1;
     }
     return 0;
 }
 
-void add_alarm(alarm *alarms, equipament *equipaments)
+void add_alarm(alarm *alarms, equipment *equipments)
 {
-    //adding to the beggining of the linked list
+    // adding to the beggining of the linked list
     alarm *tmp = malloc(sizeof(alarm));
     tmp->next = alarms->next;
     alarms->next = tmp;
@@ -315,21 +327,21 @@ void add_alarm(alarm *alarms, equipament *equipaments)
     tmp->actions_count = 0;
     tmp->id = ++last_alarm_id;
     
-    //showing equipaments to chose
+    // showing equipments to chose
     int ans;
     do
     {
-        show_equipament(equipaments);
+        show_equipament(equipments);
         printf("Choose the number of the equipment with which this alarm will be related: ");
         scanf("%d", &ans);
         getchar();
-        if (!id_exist(ans, equipaments))
+        if (!id_exist(ans, equipments))
         {
             printf("\nInvalid answer!\n");
             printf("Press <enter> to answer again.\n");
             getchar();
         }
-    } while (!id_exist(ans, equipaments));
+    } while (!id_exist(ans, equipments));
 
     tmp->equipament_id = ans;
 
@@ -421,7 +433,7 @@ void remove_alarm(alarm *alarms)
     }
 }
 
-//CRUD menu to the alarms
+// CRUD menu to the alarms
 enum menu_1_12 display_menu_1_2(void)
 {
     int ans;
@@ -438,8 +450,8 @@ enum menu_1_12 display_menu_1_2(void)
     return ans;
 }
 
-//display and implemented options for the user manege the alarm list
-void crud_alarms(alarm *alarms, equipament *equipaments)
+// display and implemented options for the user manege the alarm list
+void crud_alarms(alarm *alarms, equipment *equipments)
 {
     while (1)
     {
@@ -451,7 +463,7 @@ void crud_alarms(alarm *alarms, equipament *equipaments)
                 getchar();
                 break;
             case Add:
-                add_alarm(alarms, equipaments);
+                add_alarm(alarms, equipments);
                 break; 
             case Remove:
                 show_alarm(alarms);
@@ -470,15 +482,15 @@ void crud_alarms(alarm *alarms, equipament *equipaments)
 
 // if the data files exist load then in hte liked list,
 // and inform the user if loaded or not
-void load_files(equipament *equipaments, alarm *alarms)
+void load_files(equipment *equipments, alarm *alarms)
 {
-    FILE *fp = fopen("equipaments.txt", "r");
+    FILE *fp = fopen("equipments.txt", "r");
 
     system("clear");
 
     if(fp == NULL)
     {
-        printf("No equipaments.txt file found, the programa will proced with no equipaments.\n");
+        printf("No equipments.txt file found, the programa will proced with no equipments.\n");
     }
     else
     {
@@ -488,18 +500,18 @@ void load_files(equipament *equipaments, alarm *alarms)
         fscanf(fp, "ID,NAME,SERIAL NUMBER,TYPE,REGISTRATION_DATE\n");
         while(fscanf(fp, "%d,%[^,],%[^,],%[^,],%[^\n]\n", &id, name, serial, type, date) != EOF)
         {
-            equipaments->next = malloc(sizeof(equipament));
-            equipaments = equipaments->next;
-            equipaments->next = NULL;
+            equipments->next = malloc(sizeof(equipment));
+            equipments = equipments->next;
+            equipments->next = NULL;
 
-            equipaments->id = id;
+            equipments->id = id;
             if(id > last_id)
                 last_id = id;
 
-            strcpy(equipaments->name, name);
-            strcpy(equipaments->serial_number, serial);
-            strcpy(equipaments->type, type);
-            strcpy(equipaments->registration_date, date);
+            strcpy(equipments->name, name);
+            strcpy(equipments->serial_number, serial);
+            strcpy(equipments->type, type);
+            strcpy(equipments->registration_date, date);
         }
         fclose(fp);
         printf("equipments.txt file successfully loaded.\n");
@@ -544,28 +556,28 @@ void load_files(equipament *equipaments, alarm *alarms)
     getchar();
 }
 
-//save the corrent data in the equipaments.txt file
-void save_equipaments(equipament *equipaments)
+// save the corrent data in the equipments.txt file
+void save_equipments(equipment *equipments)
 {
-    FILE *fp = fopen("equipaments.txt", "w");
+    FILE *fp = fopen("equipments.txt", "w");
 
     fprintf(fp, "ID,NAME,SERIAL NUMBER,TYPE,REGISTRATION_DATE\n");
     
-    while (equipaments->next)
+    while (equipments->next)
     {
-        equipaments = equipaments->next;
+        equipments = equipments->next;
 
-        fprintf(fp, "%d,", equipaments->id);
-        fprintf(fp, "%s,", equipaments->name);
-        fprintf(fp, "%s,", equipaments->serial_number);
-        fprintf(fp, "%s,", equipaments->type);
-        fprintf(fp, "%s\n", equipaments->registration_date);
+        fprintf(fp, "%d,", equipments->id);
+        fprintf(fp, "%s,", equipments->name);
+        fprintf(fp, "%s,", equipments->serial_number);
+        fprintf(fp, "%s,", equipments->type);
+        fprintf(fp, "%s\n", equipments->registration_date);
     }
 
     fclose(fp);
 }
 
-//save the corrent data in the alarms.txt file
+// save the corrent data in the alarms.txt file
 void save_alarms(alarm *alarms)
 {
     FILE *fp = fopen("alarms.txt", "w");
@@ -607,8 +619,8 @@ enum menu_1_3 display_menu_1_3(void)
     return ans;
 }
 
-//display and implemented options for the user see, filter an change the alerts
-void manage_alarms(equipament *equipaments, alarm *alarms)
+// display and implemented options for the user see, filter an change the alerts
+void manage_alarms(equipment *equipments, alarm *alarms)
 {
     switch (display_menu_1_3())
     {
