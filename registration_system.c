@@ -30,6 +30,7 @@ typedef struct alarm
     char registration_date[11];// mm-dd-yyyy
     char in_date[11];// mm-dd-yyyy
     char out_date[11];// mm-dd-yyyy
+    int activated;// 0 for inactivated and 1 for activated
     int actions_count;
     struct alarm *next;
 } alarm;
@@ -330,6 +331,7 @@ void add_alarm(alarm *alarms, equipment *equipments)
     strcpy(tmp->in_date,"Never");
     strcpy(tmp->out_date,"Never");
     tmp->actions_count = 0;
+    tmp->activated = 0;
     tmp->id = ++last_alarm_id;
     
     // showing equipments to chose
@@ -392,13 +394,17 @@ void show_alarm(alarm *alarms)
     {
         alarms = alarms->next;
         printf("Alarm  %d: \n", alarms->id);
-        printf("\tDescription:       %s\n", alarms->description);
-        printf("\tRating:    %s\n", alarms->rating);
-        printf("\tRegistration Date: %s\n", alarms->registration_date);
-        printf("\tIn Date:           %s\n", alarms->in_date);
-        printf("\tOut Date:          %s\n", alarms->out_date);
-        printf("\tThis alarm is related the equipament %d\n", alarms->equipament_id);
-        printf("\tThis alarm was activated %d times\n\n", alarms->actions_count);
+        if (alarms->activated)
+            printf("\tACTIVATED\n");
+        else
+            printf("\tINACTIVATED\n");  
+        printf("\tDescription:          %s\n", alarms->description);
+        printf("\tRating:               %s\n", alarms->rating);
+        printf("\tRegistration Date:    %s\n", alarms->registration_date);
+        printf("\tIn Date:              %s\n", alarms->in_date);
+        printf("\tOut Date:             %s\n", alarms->out_date);
+        printf("This alarm is related the equipament %d\n", alarms->equipament_id);
+        printf("This alarm was activated %d times\n\n", alarms->actions_count);
     }
 }
 
@@ -530,11 +536,11 @@ void load_files(equipment *equipments, alarm *alarms)
     }
     else
     {
-        int id, equipament_id, actions_count;
+        int id, equipament_id, actions_count, activated;
         char description[MAX_STRINGS_LEN], rating[7], registration_date[11], in_date[11], out_date[11];
 
-        fscanf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
-        while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d\n", &id, &equipament_id, description, rating, registration_date, in_date, out_date, &actions_count) != EOF)
+        fscanf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIVATED,ACTIONS COUNT\n");
+        while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d\n", &id, &equipament_id, description, rating, registration_date, in_date, out_date, &activated, &actions_count) != EOF)
         {
             alarms->next = malloc(sizeof(alarm));
             alarms = alarms->next;
@@ -546,6 +552,7 @@ void load_files(equipment *equipments, alarm *alarms)
 
             alarms->equipament_id = equipament_id;
             alarms->actions_count = actions_count;
+            alarms->activated = activated;
 
             strcpy(alarms->description, description);
             strcpy(alarms->rating, rating);
@@ -587,7 +594,7 @@ void save_alarms(alarm *alarms)
 {
     FILE *fp = fopen("alarms.txt", "w");
 
-    fprintf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
+    fprintf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIVATED,ACTIONS COUNT\n");
     
     while (alarms->next)
     {
@@ -600,6 +607,7 @@ void save_alarms(alarm *alarms)
         fprintf(fp, "%s,", alarms->registration_date);
         fprintf(fp, "%s,", alarms->in_date);
         fprintf(fp, "%s,", alarms->out_date);
+        fprintf(fp, "%d,", alarms->activated);
         fprintf(fp, "%d\n", alarms->actions_count);
     }
 
