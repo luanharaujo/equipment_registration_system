@@ -375,7 +375,7 @@ void show_alarm(alarm *alarms)
         printf("\tRegistration Date: %s\n", alarms->registration_date);
         printf("\tIn Date:           %s\n", alarms->in_date);
         printf("\tOut Date:          %s\n", alarms->out_date);
-        printf("\tThis alarm is related the %d equipament", alarms->equipament_id);
+        printf("\tThis alarm is related the %d equipament\n", alarms->equipament_id);
         printf("\tThis alarm was activated %d times\n\n", alarms->actions_count);
     }
 }
@@ -459,11 +459,6 @@ void crud_alarms(alarm *alarms, equipament *equipaments)
         }
 }
 
-//display and implemented options for the user see, filter an change the alerts
-void manage_alarms(alarm *alarms)
-{
-    // TO DO
-}
 
 // if the data files exist load then in hte liked list,
 // and inform the user if loaded or not
@@ -480,7 +475,7 @@ void load_files(equipament *equipaments, alarm *alarms)
     else
     {
         int id;
-        char name[MAX_STRINGS_LEN], serial[MAX_STRINGS_LEN], type[MAX_STRINGS_LEN], date[MAX_STRINGS_LEN];
+        char name[MAX_STRINGS_LEN], serial[MAX_STRINGS_LEN], type[8], date[11];
 
         fscanf(fp, "ID,NAME,SERIAL NUMBER,TYPE,REGISTRATION_DATE\n");
         while(fscanf(fp, "%d,%[^,],%[^,],%[^,],%[^\n]\n", &id, name, serial, type, date) != EOF)
@@ -502,7 +497,40 @@ void load_files(equipament *equipaments, alarm *alarms)
         printf("equipments.txt file successfully loaded.\n");
     }
 
-    // TO DO: load the alarms.txt
+
+    fp = fopen("alarms.txt", "r");
+    if(fp == NULL)
+    {
+        printf("No alarms.txt file found, the programa will proced with no alarms.\n");
+    }
+    else
+    {
+        int id, equipament_id, actions_count;
+        char description[MAX_STRINGS_LEN], classification[7], registration_date[11], in_date[11], out_date[11];
+
+        fscanf(fp, "ID,EQUIPMENT ID,DESCRIPTION,CLASSIFICATION,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
+        while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d\n", &id, &equipament_id, description, classification, registration_date, in_date, out_date, &actions_count) != EOF)
+        {
+            alarms->next = malloc(sizeof(alarm));
+            alarms = alarms->next;
+            alarms->next = NULL;
+
+            alarms->id = id;
+            if(id > last_alarm_id)
+                last_alarm_id = id;
+
+            alarms->equipament_id = equipament_id;
+            alarms->actions_count = actions_count;
+
+            strcpy(alarms->description, description);
+            strcpy(alarms->classification, classification);
+            strcpy(alarms->registration_date, registration_date);
+            strcpy(alarms->in_date, in_date);
+            strcpy(alarms->out_date, out_date);
+        }
+        fclose(fp);
+        printf("alarms.txt file successfully loaded.\n");
+    }
 
     printf("Press <enter> to continue");
     getchar();
@@ -551,4 +579,10 @@ void save_alarms(alarm *alarms)
     }
 
     fclose(fp);
+}
+
+//display and implemented options for the user see, filter an change the alerts
+void manage_alarms(alarm *alarms)
+{
+    // TO DO
 }
