@@ -4,6 +4,10 @@
 
 This is a system for recording equipment and alerts related to them. For more details see the [specification file]('./../specification_files/Firmware%20-%20Especificação%20Prova%20Prática%20Programador.pdf).
 
+## Prerequisites
+
+This program was developed in a Ubuntu - 20.04.1 LTS running on a WSL - V2 inside a Windows 10, using has a compiler the gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0. But **probably works on any Unix-based system with a modern GCC**.
+
 ## Compilation
 
 ```bash

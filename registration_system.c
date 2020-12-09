@@ -22,6 +22,7 @@ typedef struct equipament
 // struct to store alarm informations, it will be implemented as a linked list
 typedef struct alarm
 {
+    int id; //necessary to the menus
     int equipament_id; // id of the associated Equipament
     char description[MAX_STRINGS_LEN];
     char classification[7];// Low, Medium or Hight
@@ -34,6 +35,7 @@ typedef struct alarm
 
 // global vareables
 int last_id = 0;
+int last_alarm_id = 0;
 
 // prototypes
 void load_files(equipament *equipaments, alarm *alarms);
@@ -43,11 +45,17 @@ enum menu_1 display_menu_1(void);
 void free_equipaments(equipament *equipaments);
 void free_alarms(alarm *alarms);
 void crud_equipaments(equipament *equipaments);
-void crud_alarms(alarm *alarms);
+void crud_alarms(alarm *alarms, equipament *equipaments);
 void manage_alarms(alarm *alarms);
 void add_equipament(equipament *equipaments);
 void show_equipament(equipament *equipaments);
 void remove_equipament(equipament *equipaments);
+void add_alarm(alarm *alarms, equipament *equipaments);
+void show_alarm(alarm *alarms);
+void remove_alarm(alarm *alarms);
+enum menu_1_12 display_menu_1_1(void);
+enum menu_1_12 display_menu_1_2(void);
+int id_exist(int id, equipament *equipaments);
 
 int main()
 {
@@ -70,7 +78,7 @@ int main()
                     crud_equipaments(&equipaments);
                 break;
             case All_alerts:
-                    crud_alarms(&alarms);
+                    crud_alarms(&alarms, &equipaments);
                 break; 
             case On_alerts:
                     manage_alarms(&alarms);
@@ -124,7 +132,7 @@ enum menu_1 display_menu_1(void)
     return ans;
 }
 
-//display the firth menu and returns the user answer
+//CRUD menu to the equipaments
 enum menu_1_12 display_menu_1_1(void)
 {
     int ans;
@@ -219,10 +227,14 @@ void remove_equipament(equipament *equipaments)
 
     equipament *aux = equipaments;
     
-    while (aux->next && aux->next->id != n)
+    while (aux->next)
+    {
         aux = aux->next;
-    
-    if (aux->next->id != n)
+        if (aux->id == n)
+            break;
+    }
+
+    if (aux->id != n)
     {
         printf("Equipment not found\n");
         printf("Press <enter> to return");
@@ -269,10 +281,182 @@ void crud_equipaments(equipament *equipaments)
         }
 }
 
-//display and implemented options for the user manege the alarm list
-void crud_alarms(alarm *alarms)
+//return 1 if there is a equipament with maches the id
+//returns 0 otherwise 
+int id_exist(int id, equipament *equipaments)
 {
-    // TO DO
+    while(equipaments->next)
+    {
+        equipaments = equipaments->next;
+        if (equipaments->id == id)
+            return 1;
+    }
+    return 0;
+}
+
+void add_alarm(alarm *alarms, equipament *equipaments)
+{
+    //adding to the beggining of the linked list
+    alarm *tmp = malloc(sizeof(alarm));
+    tmp->next = alarms->next;
+    alarms->next = tmp;
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    sprintf(tmp->registration_date,"%02d-%02d-%d", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900);
+
+    strcpy(tmp->in_date,"Never");
+    strcpy(tmp->out_date,"Never");
+    tmp->actions_cout = 0;
+    tmp->id = ++last_alarm_id;
+    
+    //showing equipaments to chose
+    int ans;
+    do
+    {
+        show_equipament(equipaments);
+        printf("Choose the number of the equipment with which this alarm will be related: ");
+        scanf("%d", &ans);
+        getchar();
+        if (!id_exist(ans, equipaments))
+        {
+            printf("\nInvalid answer!\n");
+            printf("Press <enter> to answer again.\n");
+            getchar();
+        }
+    } while (!id_exist(ans, equipaments));
+
+    tmp->equipament_id = ans;
+
+    printf("Alarm description: ");
+    scanf("%[^\n]", tmp->description);
+    getchar();
+
+    do
+    {
+        printf("\n0 - Low\n");
+        printf("1 - Medium\n");
+        printf("2 - Hight\n");
+        printf("Alarm classification(0/1/2): ");
+        scanf("%d", &ans);
+        getchar();
+        if (ans < 0 || ans > 2)
+            printf("\nInvalid answer!\n");
+    } while (ans < 0 || ans > 2);
+
+    switch (ans)
+    {
+        case 0:
+            strcpy(tmp->classification, "Low");
+            break;
+        case 1:
+            strcpy(tmp->classification, "Medium");
+            break; 
+        case 2:
+            strcpy(tmp->classification, "Hight");
+            break;
+    }
+
+    save_alarms(alarms);
+    system("clear");
+    printf("New alarm saved, press <Enter> to continue\n");
+    getchar();
+}
+
+void show_alarm(alarm *alarms)
+{
+    system("clear");
+    while (alarms->next)
+    {
+        alarms = alarms->next;
+        printf("Alarme  %d: \n", alarms->id);
+        printf("\tDescription:       %s\n", alarms->description);
+        printf("\tClassification:    %s\n", alarms->classification);
+        printf("\tRegistration Date: %s\n", alarms->registration_date);
+        printf("\tIn Date:           %s\n", alarms->in_date);
+        printf("\tOut Date:          %s\n", alarms->out_date);
+        printf("\tThis alarm is related the %d equipament", alarms->equipament_id);
+        printf("\tThis alarm was activated %d times\n\n", alarms->actions_cout);
+    }
+}
+
+void remove_alarm(alarm *alarms)
+{
+    int n;
+    printf("Number of Alarme to remove: ");
+    scanf("%d", &n);
+    getchar();
+
+    alarm *aux = alarms;
+
+    while (aux->next)
+    {
+        aux = aux->next;
+        if (aux->id == n)
+            break;
+    }
+
+    if (aux->id != n)
+    {
+        printf("Alarm not found\n");
+        printf("Press <enter> to return");
+        getchar();
+    }
+    else
+    {
+        alarm *aux2 = aux->next;
+        aux->next = aux->next->next;
+        free(aux2);
+
+        save_alarms(alarms);
+
+        printf("Alarm successfully deleted. New list saved to file.\n");
+        printf("Press <enter> to return");
+        getchar();
+    }
+}
+
+//CRUD menu to the alarms
+enum menu_1_12 display_menu_1_2(void)
+{
+    int ans;
+
+    system("clear");
+    printf("%d - See all Alarms\n", See);
+    printf("%d - Add new Alarm\n", Add);
+    printf("%d - Remove Alarm\n", Remove);
+    printf("%d - Return\n", Back);
+    printf("Option: ");
+    scanf("%d", &ans);
+    getchar();
+    
+    return ans;
+}
+
+//display and implemented options for the user manege the alarm list
+void crud_alarms(alarm *alarms, equipament *equipaments)
+{
+    switch (display_menu_1_2())
+        {
+            case See:
+                show_alarm(alarms);
+                printf("\n\nPress <enter> to return.");
+                getchar();
+                break;
+            case Add:
+                add_alarm(alarms, equipaments);
+                break; 
+            case Remove:
+                show_alarm(alarms);
+                remove_alarm(alarms);
+                break;
+            case Back:
+                return;
+            default:
+                printf("Ivalid Option, press <enter> to return");
+                getchar();
+                break;
+        }
 }
 
 //display and implemented options for the user see, filter an change the alerts
@@ -285,7 +469,43 @@ void manage_alarms(alarm *alarms)
 // and inform the user if loaded or not
 void load_files(equipament *equipaments, alarm *alarms)
 {
-    // TO DO
+    FILE *fp = fopen("equipaments.txt", "r");
+
+    system("clear");
+
+    if(fp == NULL)
+    {
+        printf("No equipaments.txt file found, the programa will proced with no equipaments.\n");
+    }
+    else
+    {
+        int id;
+        char name[MAX_STRINGS_LEN], serial[MAX_STRINGS_LEN], type[MAX_STRINGS_LEN], date[MAX_STRINGS_LEN];
+
+        fscanf(fp, "ID,NAME,SERIAL NUMBER,TYPE,REGISTRATION_DATE\n");
+        while(fscanf(fp, "%d,%[^,],%[^,],%[^,],%[^\n]\n", &id, name, serial, type, date) != EOF)
+        {
+            equipaments->next = malloc(sizeof(equipament));
+            equipaments = equipaments->next;
+            equipaments->next = NULL;
+
+            equipaments->id = id;
+            if(id > last_id)
+                last_id = id;
+
+            strcpy(equipaments->name, name);
+            strcpy(equipaments->serial_number, serial);
+            strcpy(equipaments->type, type);
+            strcpy(equipaments->registration_date, date);
+        }
+        fclose(fp);
+        printf("equipments.txt file successfully loaded.\n");
+    }
+
+    // TO DO: load the alarms.txt
+
+    printf("Press <enter> to continue");
+    getchar();
 }
 
 //save the corrent data in the equipaments.txt file
@@ -307,7 +527,6 @@ void save_equipaments(equipament *equipaments)
     }
 
     fclose(fp);
-    // TO DO
 }
 
 //save the corrent data in the alarms.txt file
