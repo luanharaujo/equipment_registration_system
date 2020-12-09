@@ -47,6 +47,7 @@ void crud_alarms(alarm *alarms);
 void manage_alarms(alarm *alarms);
 void add_equipament(equipament *equipaments);
 void show_equipament(equipament *equipaments);
+void remove_equipament(equipament *equipaments);
 
 int main()
 {
@@ -172,7 +173,7 @@ void add_equipament(equipament *equipaments)
         scanf("%d", &ans);
         getchar();
         if (ans < 0 || ans > 2)
-            printf("\nResposta invalida!!\n");
+            printf("\nInvalid answer!\n");
     } while (ans < 0 || ans > 2);
 
     switch (ans)
@@ -207,8 +208,39 @@ void show_equipament(equipament *equipaments)
         printf("\tRegistration date: %s\n\n", equipaments->registration_date);
     }
 
-    printf("\n\nPress <enter> to return.");
+}
+
+void remove_equipament(equipament *equipaments)
+{
+    int n;
+    printf("Number of Equipament to remove: ");
+    scanf("%d", &n);
     getchar();
+
+    equipament *aux = equipaments;
+    
+    while (aux->next && aux->next->id != n)
+        aux = aux->next;
+    
+    if(aux->next->id != n)
+    {
+        printf("Equipment not found\n");
+        printf("Press <enter> to return");
+        getchar();
+    }
+    else
+    {
+        // TO DO: delete related alarms
+        equipament *aux2 = aux->next;
+        aux->next = aux->next->next;
+        free(aux2);
+
+        save_equipaments(equipaments);
+
+        printf("Equipment successfully deleted. New list saved to file.\n");
+        printf("Press <enter> to return");
+        getchar();
+    }
 }
 
 //display and implemented options for the user manege the equipament list
@@ -218,12 +250,15 @@ void crud_equipaments(equipament *equipaments)
         {
             case See:
                 show_equipament(equipaments);
+                printf("\n\nPress <enter> to return.");
+                getchar();
                 break;
             case Add:
                 add_equipament(equipaments);
                 break; 
             case Remove:
-                // TO DO
+                show_equipament(equipaments);
+                remove_equipament(equipaments);
                 break;
             case Back:
                 return;
