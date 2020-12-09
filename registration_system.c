@@ -29,7 +29,7 @@ typedef struct alarm
     char registration_date[11];// mm-dd-yyyy
     char in_date[11];// mm-dd-yyyy
     char out_date[11];// mm-dd-yyyy
-    int actions_cout;
+    int actions_count;
     struct alarm *next;
 } alarm;
 
@@ -307,7 +307,7 @@ void add_alarm(alarm *alarms, equipament *equipaments)
 
     strcpy(tmp->in_date,"Never");
     strcpy(tmp->out_date,"Never");
-    tmp->actions_cout = 0;
+    tmp->actions_count = 0;
     tmp->id = ++last_alarm_id;
     
     //showing equipaments to chose
@@ -376,7 +376,7 @@ void show_alarm(alarm *alarms)
         printf("\tIn Date:           %s\n", alarms->in_date);
         printf("\tOut Date:          %s\n", alarms->out_date);
         printf("\tThis alarm is related the %d equipament", alarms->equipament_id);
-        printf("\tThis alarm was activated %d times\n\n", alarms->actions_cout);
+        printf("\tThis alarm was activated %d times\n\n", alarms->actions_count);
     }
 }
 
@@ -532,5 +532,23 @@ void save_equipaments(equipament *equipaments)
 //save the corrent data in the alarms.txt file
 void save_alarms(alarm *alarms)
 {
-    // TO DO
+    FILE *fp = fopen("alarms.txt", "w");
+
+    fprintf(fp, "ID,EQUIPMENT ID,DESCRIPTION,CLASSIFICATION,REGISTRATION DATE,IN DATE,OUT DATE,ACTIONS COUNT\n");
+    
+    while (alarms->next)
+    {
+        alarms = alarms->next;
+
+        fprintf(fp, "%d,", alarms->id);
+        fprintf(fp, "%d,", alarms->equipament_id);
+        fprintf(fp, "%s,", alarms->description);
+        fprintf(fp, "%s,", alarms->classification);
+        fprintf(fp, "%s,", alarms->registration_date);
+        fprintf(fp, "%s,", alarms->in_date);
+        fprintf(fp, "%s,", alarms->out_date);
+        fprintf(fp, "%d\n", alarms->actions_count);
+    }
+
+    fclose(fp);
 }
