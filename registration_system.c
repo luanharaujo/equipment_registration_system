@@ -27,7 +27,7 @@ typedef struct alarm
     int id; // necessary to the menus
     int equipment_id; // id of the associated Equipament
     char description[MAX_STRINGS_LEN];
-    char rating[7];// Low, Medium or Hight
+    char rating[7];// Low, Medium or High
     char registration_date[11];// mm-dd-yyyy
     char in_date[11];// mm-dd-yyyy
     char out_date[11];// mm-dd-yyyy
@@ -324,72 +324,81 @@ int id_exist(int id, equipment *equipments)
 
 void add_alarm(alarm *alarms, equipment *equipments)
 {
-    // adding to the beggining of the linked list
-    alarm *tmp = malloc(sizeof(alarm));
-    tmp->next = alarms->next;
-    alarms->next = tmp;
-
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    sprintf(tmp->registration_date,"%02d-%02d-%d", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900);
-
-    strcpy(tmp->in_date,"Never");
-    strcpy(tmp->out_date,"Never");
-    tmp->actions_count = 0;
-    tmp->activated = 0;
-    tmp->id = ++last_alarm_id;
-    
-    // showing equipments to chose
-    int ans;
-    do
+    if(equipments->next != NULL)
     {
-        show_equipament(equipments);
-        printf("Choose the number of the equipment with which this alarm will be related: ");
-        scanf("%d", &ans);
-        getchar();
-        if (!id_exist(ans, equipments))
+        // adding to the beggining of the linked list
+        alarm *tmp = malloc(sizeof(alarm));
+        tmp->next = alarms->next;
+        alarms->next = tmp;
+
+        time_t t = time(NULL);
+        struct tm tm = *localtime(&t);
+        sprintf(tmp->registration_date,"%02d-%02d-%d", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900);
+
+        strcpy(tmp->in_date,"Never");
+        strcpy(tmp->out_date,"Never");
+        tmp->actions_count = 0;
+        tmp->activated = 0;
+        tmp->id = ++last_alarm_id;
+        
+        // showing equipments to chose
+        int ans;
+        do
         {
-            printf("\nInvalid answer!\n");
-            printf("Press <enter> to answer again.\n");
+            show_equipament(equipments);
+            printf("Choose the number of the equipment with which this alarm will be related: ");
+            scanf("%d", &ans);
             getchar();
-        }
-    } while (!id_exist(ans, equipments));
+            if (!id_exist(ans, equipments))
+            {
+                printf("\nInvalid answer!\n");
+                printf("Press <enter> to answer again.\n");
+                getchar();
+            }
+        } while (!id_exist(ans, equipments));
 
-    tmp->equipment_id = ans;
+        tmp->equipment_id = ans;
 
-    printf("Alarm description: ");
-    scanf("%[^\n]", tmp->description);
-    getchar();
-
-    do
-    {
-        printf("\n0 - Low\n");
-        printf("1 - Medium\n");
-        printf("2 - Hight\n");
-        printf("Alarm rating(0/1/2): ");
-        scanf("%d", &ans);
+        printf("Alarm description: ");
+        scanf("%[^\n]", tmp->description);
         getchar();
-        if (ans < 0 || ans > 2)
-            printf("\nInvalid answer!\n");
-    } while (ans < 0 || ans > 2);
 
-    switch (ans)
-    {
-        case 0:
-            strcpy(tmp->rating, "Low");
-            break;
-        case 1:
-            strcpy(tmp->rating, "Medium");
-            break; 
-        case 2:
-            strcpy(tmp->rating, "Hight");
-            break;
+        do
+        {
+            printf("\n0 - Low\n");
+            printf("1 - Medium\n");
+            printf("2 - High\n");
+            printf("Alarm rating(0/1/2): ");
+            scanf("%d", &ans);
+            getchar();
+            if (ans < 0 || ans > 2)
+                printf("\nInvalid answer!\n");
+        } while (ans < 0 || ans > 2);
+
+        switch (ans)
+        {
+            case 0:
+                strcpy(tmp->rating, "Low");
+                break;
+            case 1:
+                strcpy(tmp->rating, "Medium");
+                break; 
+            case 2:
+                strcpy(tmp->rating, "High");
+                break;
+        }
+
+        save_alarms(alarms);
+        system("clear");
+        printf("New alarm saved, press <Enter> to continue\n");
+        getchar();
     }
-
-    save_alarms(alarms);
-    system("clear");
-    printf("New alarm saved, press <Enter> to continue\n");
-    getchar();
+    else
+    {
+        system("clear");
+        printf("You need to add a equipment before adding an alarm, press <Enter> to continue\n");
+        getchar();
+    }
 }
 
 void show_alarm(alarm *alarms)
@@ -726,7 +735,7 @@ int before(alarm *alarm1, alarm *alarm2, enum order_by opt)
             break;
             
         case By_rating:
-            if (strcasecmp(alarm1->rating, "Hight") == 0)
+            if (strcasecmp(alarm1->rating, "High") == 0)
                 return 1;
             if (strcasecmp(alarm2->rating, "Low") == 0)
                 return 1;
