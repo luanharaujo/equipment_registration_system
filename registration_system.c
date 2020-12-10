@@ -642,8 +642,8 @@ enum menu_1_3 display_menu_1_3(void)
 
     system("clear");
     printf("%d - Enable and disable alarms\n", On_Off);
-    printf("%d - See actuated alarms by description\n", Description);
-    printf("%d - See actuated alarms by rating\n", Rating);
+    printf("%d - See activated alarms by description\n", Description);
+    printf("%d - See activated alarms by rating\n", Rating);
     printf("%d - Search alarm\n", Search);
     printf("%d - See 3 most frequent alarms\n", Most_3);
     printf("%d - Return\n", Back2);
@@ -881,7 +881,7 @@ void toggle(alarm *alarms)
 
     if (aux->id != ans)
     {
-        printf("\nAlarm not found, press <enter> to return.\n");
+        printf("\nAlarm not found.\n");
     }
     else
     {
