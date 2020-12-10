@@ -59,6 +59,7 @@ enum menu_1_12 display_menu_1_1(void);
 enum menu_1_12 display_menu_1_2(void);
 enum menu_1_3 display_menu_1_3(void);
 int id_exist(int id, equipment *equipments);
+void toggle(alarm *alarms);
 
 int main()
 {
@@ -237,7 +238,7 @@ void remove_equipament(equipment *equipments, alarm *alarms)
         aux = aux->next;
     }
     
-    if (aux->next->id != n)
+    if (!aux->next)
     {
         printf("Equipment not found\n");
         printf("Press <enter> to return");
@@ -424,7 +425,7 @@ void remove_alarm(alarm *alarms)
         aux = aux->next;
     }
 
-    if (aux->next->id != n)
+    if (!aux->next)
     {
         printf("Alarm not found\n");
         printf("Press <enter> to return");
@@ -635,28 +636,65 @@ enum menu_1_3 display_menu_1_3(void)
 // display and implemented options for the user see, filter an change the Alarms
 void manage_alarms(equipment *equipments, alarm *alarms)
 {
-    switch (display_menu_1_3())
+    while(1)
     {
-        case On_Off:
-            // TO DO
-            break;
-        case Description:
-            // TO DO
-            break; 
-        case Rating:
-            // TO DO
-            break;
-        case Search:
-            // TO DO
-            break;
-        case Most_3:
-            // TO DO
-            break;
-        case Back2:
-            return;
-        default:
-            printf("Ivalid Option, press <enter> to return");
-            getchar();
-            break;
+        switch (display_menu_1_3())
+        {
+            case On_Off:
+                toggle(alarms);
+                break;
+            case Description:
+                // TO DO
+                break; 
+            case Rating:
+                // TO DO
+                break;
+            case Search:
+                // TO DO
+                break;
+            case Most_3:
+                // TO DO
+                break;
+            case Back2:
+                return;
+            default:
+                printf("Ivalid Option, press <enter> to return");
+                getchar();
+                break;
+        }
     }
+}
+
+void toggle(alarm *alarms)
+{
+    int ans;
+
+    show_alarm(alarms);
+    printf("Which alarm do you want to toggle: ");
+    scanf("%d", &ans);
+    getchar();
+
+    alarm *aux = alarms;
+
+    while (aux->next)
+    {
+        aux = aux->next;
+        if (aux->id == ans)
+        {
+            aux->activated = !aux->activated;
+            save_alarms(alarms);
+            break;
+        }
+    }
+
+    if (aux->id != ans)
+    {
+        printf("\nAlarm not found, press <enter> to return.\n");
+    }
+    else
+    {
+        printf("\nAlarms updated and save in file.\n");
+    }
+    printf("Press <enter> to continue");
+    getchar();
 }
