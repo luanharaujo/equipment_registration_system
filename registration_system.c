@@ -61,7 +61,7 @@ enum menu_1_12 display_menu_1_2(void);
 enum menu_1_3 display_menu_1_3(void);
 int id_exist(int id, equipment *equipments);
 void toggle(alarm *alarms);
-void show_alarms_with_equipment(alarm *alarms, equipment *equipamens, int limit);
+void show_alarms_with_equipment(alarm *alarms, equipment *equipamens, int limit, char searched_word[MAX_STRINGS_LEN]);
 int before(alarm *alarm1, alarm *alarm2, enum order_by opt);
 alarm *order_alarms(alarm *alarms, enum order_by opt);
 
@@ -744,6 +744,8 @@ int before(alarm *alarm1, alarm *alarm2, enum order_by opt)
 // display and implemented options for the user see, filter an change the Alarms
 void manage_alarms(equipment *equipmens, alarm *alarms)
 {
+    char ans[MAX_STRINGS_LEN];
+
     while(1)
     {
         switch (display_menu_1_3())
@@ -753,18 +755,22 @@ void manage_alarms(equipment *equipmens, alarm *alarms)
                 break;
             case Description:
                 alarms->next = order_alarms(alarms->next, By_description);
-                show_alarms_with_equipment(alarms, equipmens, -1);
+                show_alarms_with_equipment(alarms, equipmens, -1, NULL);
                 break; 
             case Rating:
                 alarms->next = order_alarms(alarms->next, By_rating);
-                show_alarms_with_equipment(alarms, equipmens, -1);
+                show_alarms_with_equipment(alarms, equipmens, -1, NULL);
                 break;
             case Search:
-                // TO DO
+                system("clear");
+                printf("Search: ");
+                scanf("%[^\n]", ans);
+                getchar();
+                show_alarms_with_equipment(alarms, equipmens, -1, ans);
                 break;
             case Most_3:
                 alarms->next = order_alarms(alarms->next, By_number_of_activations);
-                show_alarms_with_equipment(alarms, equipmens, 3);                   
+                show_alarms_with_equipment(alarms, equipmens, 3, NULL);                   
                 break;
             case Back2:
                 return;
@@ -776,47 +782,54 @@ void manage_alarms(equipment *equipmens, alarm *alarms)
     }
 }
 
-//shows alarms with their respective equipment in the linked list order
-//limited to the firth n (variable limit), for unlimited limit = -1
-void show_alarms_with_equipment(alarm *alarms, equipment *equipmens, int limit)
+// shows alarms with their respective equipment in the linked list order
+// limited to the firth n (variable limit), for unlimited limit = -1
+// if searched_word != NULL, show only alarms that the description contains the searched_word  
+void show_alarms_with_equipment(alarm *alarms, equipment *equipmens, int limit, char searched_word[MAX_STRINGS_LEN])
 {
-    int i = 0;
+    int i = 0, j = 0;
 
     system("clear");
     while(alarms->next)
     {
-        // print alarm data
         alarms = alarms->next;
-        printf("Alarm  %d: \n", alarms->id);
-        if (alarms->activated)
-            printf("\tACTIVATED\n");
-        else
-            printf("\tINACTIVATED\n");  
-        printf("\tDescription:          %s\n", alarms->description);
-        printf("\tRating:               %s\n", alarms->rating);
-        printf("\tRegistration Date:    %s\n", alarms->registration_date);
-        printf("\tIn Date:              %s\n", alarms->in_date);
-        printf("\tOut Date:             %s\n", alarms->out_date);
-        printf("\tThis alarm was activated %d times\n\n", alarms->actions_count);
-        printf("\tThis alarm is related the equipament %d:\n", alarms->equipment_id);
+        if ((searched_word == NULL) || (strstr(alarms->description, searched_word) != NULL))
+        {
+            j++;
+            // print alarm data
+            printf("Alarm  %d: \n", alarms->id);
+            if (alarms->activated)
+                printf("\tACTIVATED\n");
+            else
+                printf("\tINACTIVATED\n");  
+            printf("\tDescription:          %s\n", alarms->description);
+            printf("\tRating:               %s\n", alarms->rating);
+            printf("\tRegistration Date:    %s\n", alarms->registration_date);
+            printf("\tIn Date:              %s\n", alarms->in_date);
+            printf("\tOut Date:             %s\n", alarms->out_date);
+            printf("\tThis alarm was activated %d times\n\n", alarms->actions_count);
+            printf("\tThis alarm is related the equipament %d:\n", alarms->equipment_id);
 
-        // find equipment data
-        equipment *related = equipmens->next;
-        while (related->id != alarms->equipment_id)
-            related = related->next;
-        
-        // print equipment data
-        printf("\tEquipment data:\n");
-        printf("\t\tName:              %s\n", related->name);
-        printf("\t\tSerial number:     %s\n", related->serial_number);
-        printf("\t\tType:              %s\n", related->type);
-        printf("\t\tRegistration date: %s\n\n", related->registration_date);
+            // find equipment data
+            equipment *related = equipmens->next;
+            while (related->id != alarms->equipment_id)
+                related = related->next;
+            
+            // print equipment data
+            printf("\tEquipment data:\n");
+            printf("\t\tName:              %s\n", related->name);
+            printf("\t\tSerial number:     %s\n", related->serial_number);
+            printf("\t\tType:              %s\n", related->type);
+            printf("\t\tRegistration date: %s\n\n", related->registration_date);
 
-        if (limit != -1)
-            if (++i == limit)
-                break;
+            if (limit != -1)
+                if (++i == limit)
+                    break;
+        }
     }
     
+    if (searched_word != NULL && j == 0)
+        printf("No alarms with the term \"%s\" in their description were found.", searched_word);
     printf("Press <enter> to return.\n");
     getchar();
 }
