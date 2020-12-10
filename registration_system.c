@@ -8,6 +8,7 @@
 enum menu_1{Equipamens, All_Alarms, On_Alarms, Exit};
 enum menu_1_12{See, Add, Remove, Back};
 enum menu_1_3{On_Off, Description, Rating, Search, Most_3, Back2};
+enum order_by{By_description, By_rating, By_number_of_activations};
 
 // struct to store equipments informations, it will be implemented as a linked list
 typedef struct equipment
@@ -682,6 +683,18 @@ void toggle(alarm *alarms)
         if (aux->id == ans)
         {
             aux->activated = !aux->activated;
+            time_t t = time(NULL);
+            struct tm tm = *localtime(&t);
+
+            if (aux->activated)
+            {
+                aux->actions_count++;
+                sprintf(aux->in_date,"%02d-%02d-%d", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900);
+            }
+            else
+            {
+                sprintf(aux->out_date,"%02d-%02d-%d", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900);
+            }
             save_alarms(alarms);
             break;
         }
