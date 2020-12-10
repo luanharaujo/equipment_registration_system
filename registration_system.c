@@ -62,6 +62,8 @@ enum menu_1_3 display_menu_1_3(void);
 int id_exist(int id, equipment *equipments);
 void toggle(alarm *alarms);
 void show_alarms_with_equipment(alarm *alarms, equipment *equipamens);
+int before(alarm *alarm1, alarm *alarm2, enum order_by opt);
+alarm *order_alarms(alarm *alarms, enum order_by opt);
 
 int main()
 {
@@ -641,6 +643,104 @@ enum menu_1_3 display_menu_1_3(void)
     return ans;
 }
 
+// Order the alarms linked list by the opt criterion.
+// opt is By_description, By_rating or By_number_of_activations
+// the algoritmic implemented is the Merge Sort
+alarm *order_alarms(alarm *start, enum order_by opt)
+{
+    //basic cases
+    if (start == NULL)
+        return NULL;
+    if (start->next == NULL)
+        return start;
+
+    // using the Rabbit and Turtle Algorithm to divide the list
+    alarm *turtle = start;
+    alarm *rabbit = start;
+
+    while(rabbit->next && rabbit->next->next)
+    {
+        rabbit = rabbit->next->next;
+        turtle = turtle->next;
+    }
+
+    alarm *middle = turtle->next;
+    turtle->next = NULL;
+
+    middle = order_alarms(middle, opt);
+    start = order_alarms(start, opt);
+
+    //marging
+    alarm *sorted;
+    if (before(start, middle, opt))
+    {
+        sorted = start;
+        if (start)
+           start = start->next; 
+    }    
+    else
+    {
+        sorted = middle;
+        if (middle)
+           middle = middle->next;
+    }
+
+    alarm *tmp = sorted;
+
+    while(start || middle)
+    {
+        if (before(start, middle, opt))
+        {
+            tmp->next = start;
+            if (start)
+                start = start->next; 
+        }    
+        else
+        {
+            tmp->next = middle;
+            if (middle)
+                middle = middle->next;
+        }
+        tmp = tmp->next;
+    }
+        
+    return sorted;    
+}
+
+// Returns 1 if alarm 1 comes before alarm 2 according to the opt criterion.
+// Returns 0 otherwise.
+// opt is By_description, By_rating or By_number_of_activations
+int before(alarm *alarm1, alarm *alarm2, enum order_by opt)
+{
+    if (!alarm1)
+        return 0;
+    
+    if (!alarm2)
+        return 1;
+
+    switch (opt)
+    {
+        case By_description:
+            if (strcmp(alarm1->description, alarm2->description) < 0)
+                return 1;
+            break;
+            
+        case By_rating:
+            if (strcasecmp(alarm1->rating, "Hight") == 0)
+                return 1;
+            if (strcasecmp(alarm2->rating, "Low") == 0)
+                return 1;
+            break;
+        
+        case By_number_of_activations:
+            if (alarm1->actions_count > alarm2->actions_count)
+                return 1;
+            break;
+    }
+
+    return 0;
+}
+
 // display and implemented options for the user see, filter an change the Alarms
 void manage_alarms(equipment *equipmens, alarm *alarms)
 {
@@ -652,16 +752,18 @@ void manage_alarms(equipment *equipmens, alarm *alarms)
                 toggle(alarms);
                 break;
             case Description:
-                // TO DO
+                alarms->next = order_alarms(alarms->next, By_description);
                 show_alarms_with_equipment(alarms, equipmens);
                 break; 
             case Rating:
-                // TO DO
+                alarms->next = order_alarms(alarms->next, By_rating);
+                show_alarms_with_equipment(alarms, equipmens);
                 break;
             case Search:
                 // TO DO
                 break;
             case Most_3:
+                alarms->next = order_alarms(alarms->next, By_number_of_activations);
                 // TO DO
                 break;
             case Back2:
