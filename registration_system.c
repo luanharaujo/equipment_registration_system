@@ -25,7 +25,7 @@ typedef struct equipment
 typedef struct alarm
 {
     int id; // necessary to the menus
-    int equipament_id; // id of the associated Equipament
+    int equipment_id; // id of the associated Equipament
     char description[MAX_STRINGS_LEN];
     char rating[7];// Low, Medium or Hight
     char registration_date[11];// mm-dd-yyyy
@@ -61,6 +61,7 @@ enum menu_1_12 display_menu_1_2(void);
 enum menu_1_3 display_menu_1_3(void);
 int id_exist(int id, equipment *equipments);
 void toggle(alarm *alarms);
+void show_alarms_with_equipment(alarm *alarms, equipment *equipamens);
 
 int main()
 {
@@ -251,7 +252,7 @@ void remove_equipament(equipment *equipments, alarm *alarms)
         alarm *aux3 = alarms;
         while (aux3->next)
         { 
-            if (aux3->next->equipament_id == n)
+            if (aux3->next->equipment_id == n)
             {
                 alarm *aux4 = aux3->next;
                 aux3->next = aux3->next->next;
@@ -352,7 +353,7 @@ void add_alarm(alarm *alarms, equipment *equipments)
         }
     } while (!id_exist(ans, equipments));
 
-    tmp->equipament_id = ans;
+    tmp->equipment_id = ans;
 
     printf("Alarm description: ");
     scanf("%[^\n]", tmp->description);
@@ -405,7 +406,7 @@ void show_alarm(alarm *alarms)
         printf("\tRegistration Date:    %s\n", alarms->registration_date);
         printf("\tIn Date:              %s\n", alarms->in_date);
         printf("\tOut Date:             %s\n", alarms->out_date);
-        printf("This alarm is related the equipament %d\n", alarms->equipament_id);
+        printf("This alarm is related the equipament %d\n", alarms->equipment_id);
         printf("This alarm was activated %d times\n\n", alarms->actions_count);
     }
 }
@@ -538,11 +539,11 @@ void load_files(equipment *equipments, alarm *alarms)
     }
     else
     {
-        int id, equipament_id, actions_count, activated;
+        int id, equipment_id, actions_count, activated;
         char description[MAX_STRINGS_LEN], rating[7], registration_date[11], in_date[11], out_date[11];
 
         fscanf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIVATED,ACTIONS COUNT\n");
-        while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d\n", &id, &equipament_id, description, rating, registration_date, in_date, out_date, &activated, &actions_count) != EOF)
+        while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d\n", &id, &equipment_id, description, rating, registration_date, in_date, out_date, &activated, &actions_count) != EOF)
         {
             alarms->next = malloc(sizeof(alarm));
             alarms = alarms->next;
@@ -552,7 +553,7 @@ void load_files(equipment *equipments, alarm *alarms)
             if(id > last_alarm_id)
                 last_alarm_id = id;
 
-            alarms->equipament_id = equipament_id;
+            alarms->equipment_id = equipment_id;
             alarms->actions_count = actions_count;
             alarms->activated = activated;
 
@@ -603,7 +604,7 @@ void save_alarms(alarm *alarms)
         alarms = alarms->next;
 
         fprintf(fp, "%d,", alarms->id);
-        fprintf(fp, "%d,", alarms->equipament_id);
+        fprintf(fp, "%d,", alarms->equipment_id);
         fprintf(fp, "%s,", alarms->description);
         fprintf(fp, "%s,", alarms->rating);
         fprintf(fp, "%s,", alarms->registration_date);
@@ -635,7 +636,7 @@ enum menu_1_3 display_menu_1_3(void)
 }
 
 // display and implemented options for the user see, filter an change the Alarms
-void manage_alarms(equipment *equipments, alarm *alarms)
+void manage_alarms(equipment *equipmens, alarm *alarms)
 {
     while(1)
     {
@@ -646,6 +647,7 @@ void manage_alarms(equipment *equipments, alarm *alarms)
                 break;
             case Description:
                 // TO DO
+                show_alarms_with_equipment(alarms, equipmens);
                 break; 
             case Rating:
                 // TO DO
@@ -664,6 +666,44 @@ void manage_alarms(equipment *equipments, alarm *alarms)
                 break;
         }
     }
+}
+
+//shows alarms with their respective equipment in the linked list order
+void show_alarms_with_equipment(alarm *alarms, equipment *equipmens)
+{
+    system("clear");
+    while(alarms->next)
+    {
+        // print alarm data
+        alarms = alarms->next;
+        printf("Alarm  %d: \n", alarms->id);
+        if (alarms->activated)
+            printf("\tACTIVATED\n");
+        else
+            printf("\tINACTIVATED\n");  
+        printf("\tDescription:          %s\n", alarms->description);
+        printf("\tRating:               %s\n", alarms->rating);
+        printf("\tRegistration Date:    %s\n", alarms->registration_date);
+        printf("\tIn Date:              %s\n", alarms->in_date);
+        printf("\tOut Date:             %s\n", alarms->out_date);
+        printf("\tThis alarm was activated %d times\n\n", alarms->actions_count);
+        printf("\tThis alarm is related the equipament %d:\n", alarms->equipment_id);
+
+        // find equipment data
+        equipment *related = equipmens->next;
+        while (related->id != alarms->equipment_id)
+            related = related->next;
+        
+        // print equipment data
+        printf("\tEquipment data:\n");
+        printf("\t\tName:              %s\n", related->name);
+        printf("\t\tSerial number:     %s\n", related->serial_number);
+        printf("\t\tType:              %s\n", related->type);
+        printf("\t\tRegistration date: %s\n\n", related->registration_date);
+    }
+    
+    printf("Press <enter> to return.\n");
+    getchar();
 }
 
 void toggle(alarm *alarms)
