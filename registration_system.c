@@ -260,8 +260,11 @@ void remove_equipament(equipment *equipments, alarm *alarms)
                 aux3->next = aux3->next->next;
                 free(aux4);
             }
+            else
+            {
+                aux3 = aux3->next;
+            }
                      
-            aux3 = aux3->next;
             if (!aux3)
                 break;    
         }
@@ -271,7 +274,6 @@ void remove_equipament(equipment *equipments, alarm *alarms)
         free(aux2);
        
         save_alarms(alarms);
-        
         save_equipments(equipments);
         
         printf("Equipment and related alarms successfully deleted. New list saved to file.\n");
@@ -640,8 +642,8 @@ enum menu_1_3 display_menu_1_3(void)
 
     system("clear");
     printf("%d - Enable and disable alarms\n", On_Off);
-    printf("%d - See all alarms by description\n", Description);
-    printf("%d - View all alarms by rating\n", Rating);
+    printf("%d - See actuated alarms by description\n", Description);
+    printf("%d - See actuated alarms by rating\n", Rating);
     printf("%d - Search alarm\n", Search);
     printf("%d - See 3 most frequent alarms\n", Most_3);
     printf("%d - Return\n", Back2);
@@ -657,7 +659,7 @@ enum menu_1_3 display_menu_1_3(void)
 // the algoritmic implemented is the Merge Sort
 alarm *order_alarms(alarm *start, enum order_by opt)
 {
-    //basic cases
+    // basic cases
     if (start == NULL)
         return NULL;
     if (start->next == NULL)
@@ -679,7 +681,7 @@ alarm *order_alarms(alarm *start, enum order_by opt)
     middle = order_alarms(middle, opt);
     start = order_alarms(start, opt);
 
-    //marging
+    // marging
     alarm *sorted;
     if (before(start, middle, opt))
     {
@@ -802,7 +804,7 @@ void show_alarms_with_equipment(alarm *alarms, equipment *equipmens, int limit, 
     while(alarms->next)
     {
         alarms = alarms->next;
-        if ((searched_word == NULL) || (strstr(alarms->description, searched_word) != NULL))
+        if ((searched_word == NULL && (alarms->activated || limit == 3)) || (searched_word != NULL && strstr(alarms->description, searched_word) != NULL))
         {
             j++;
             // print alarm data
