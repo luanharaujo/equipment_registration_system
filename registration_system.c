@@ -508,12 +508,15 @@ void load_files(equipment *equipments, alarm *alarms)
     }
     else
     {
+        // loading equipments from file
         int id;
         char name[MAX_STRINGS_LEN], serial[MAX_STRINGS_LEN], type[8], date[11];
+        int n_equipments = 0;
 
         fscanf(fp, "ID,NAME,SERIAL NUMBER,TYPE,REGISTRATION_DATE\n");
         while(fscanf(fp, "%d,%[^,],%[^,],%[^,],%[^\n]\n", &id, name, serial, type, date) != EOF)
         {
+            n_equipments++;
             equipments->next = malloc(sizeof(equipment));
             equipments = equipments->next;
             equipments->next = NULL;
@@ -528,7 +531,7 @@ void load_files(equipment *equipments, alarm *alarms)
             strcpy(equipments->registration_date, date);
         }
         fclose(fp);
-        printf("equipments.txt file successfully loaded.\n");
+        printf("equipments.txt file successfully loaded. %d equipments found.\n", n_equipments);
     }
 
 
@@ -539,12 +542,15 @@ void load_files(equipment *equipments, alarm *alarms)
     }
     else
     {
+        // loading alarms from file
         int id, equipment_id, actions_count, activated;
         char description[MAX_STRINGS_LEN], rating[7], registration_date[11], in_date[11], out_date[11];
+        int n_alarms = 0;
 
         fscanf(fp, "ID,EQUIPMENT ID,DESCRIPTION,RATING,REGISTRATION DATE,IN DATE,OUT DATE,ACTIVATED,ACTIONS COUNT\n");
         while(fscanf(fp, "%d,%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d\n", &id, &equipment_id, description, rating, registration_date, in_date, out_date, &activated, &actions_count) != EOF)
         {
+            n_alarms++;
             alarms->next = malloc(sizeof(alarm));
             alarms = alarms->next;
             alarms->next = NULL;
@@ -564,7 +570,7 @@ void load_files(equipment *equipments, alarm *alarms)
             strcpy(alarms->out_date, out_date);
         }
         fclose(fp);
-        printf("alarms.txt file successfully loaded.\n");
+        printf("alarms.txt file successfully loaded. %d alarms found.\n", n_alarms);
     }
 
     printf("Press <enter> to continue");
