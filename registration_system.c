@@ -61,7 +61,7 @@ enum menu_1_12 display_menu_1_2(void);
 enum menu_1_3 display_menu_1_3(void);
 int id_exist(int id, equipment *equipments);
 void toggle(alarm *alarms);
-void show_alarms_with_equipment(alarm *alarms, equipment *equipamens);
+void show_alarms_with_equipment(alarm *alarms, equipment *equipamens, int limit);
 int before(alarm *alarm1, alarm *alarm2, enum order_by opt);
 alarm *order_alarms(alarm *alarms, enum order_by opt);
 
@@ -753,18 +753,18 @@ void manage_alarms(equipment *equipmens, alarm *alarms)
                 break;
             case Description:
                 alarms->next = order_alarms(alarms->next, By_description);
-                show_alarms_with_equipment(alarms, equipmens);
+                show_alarms_with_equipment(alarms, equipmens, -1);
                 break; 
             case Rating:
                 alarms->next = order_alarms(alarms->next, By_rating);
-                show_alarms_with_equipment(alarms, equipmens);
+                show_alarms_with_equipment(alarms, equipmens, -1);
                 break;
             case Search:
                 // TO DO
                 break;
             case Most_3:
                 alarms->next = order_alarms(alarms->next, By_number_of_activations);
-                // TO DO
+                show_alarms_with_equipment(alarms, equipmens, 3);                   
                 break;
             case Back2:
                 return;
@@ -777,8 +777,11 @@ void manage_alarms(equipment *equipmens, alarm *alarms)
 }
 
 //shows alarms with their respective equipment in the linked list order
-void show_alarms_with_equipment(alarm *alarms, equipment *equipmens)
+//limited to the firth n (variable limit), for unlimited limit = -1
+void show_alarms_with_equipment(alarm *alarms, equipment *equipmens, int limit)
 {
+    int i = 0;
+
     system("clear");
     while(alarms->next)
     {
@@ -808,6 +811,10 @@ void show_alarms_with_equipment(alarm *alarms, equipment *equipmens)
         printf("\t\tSerial number:     %s\n", related->serial_number);
         printf("\t\tType:              %s\n", related->type);
         printf("\t\tRegistration date: %s\n\n", related->registration_date);
+
+        if (limit != -1)
+            if (++i == limit)
+                break;
     }
     
     printf("Press <enter> to return.\n");
