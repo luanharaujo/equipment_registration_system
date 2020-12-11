@@ -21,7 +21,7 @@ gcc registration_system.c -o registration_system
 
 ## Usage
 
-The text files are in csv format and can be filled in manually to speed up the program testing process, however the guidelines in [this section](## Observations) must be observed.
+The text files are in csv format and can be filled in manually to speed up the program testing process, however the guidelines in the section **Observations** must be followed.
 
 Two examples of data from text files are shown below.
 
