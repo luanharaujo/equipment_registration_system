@@ -147,8 +147,8 @@ enum menu_1_12 display_menu_1_1(void)
 
     system("clear");
     printf("%d - See all equipments\n", See);
-    printf("%d - Add new Equipament\n", Add);
-    printf("%d - Remove Equipament\n", Remove);
+    printf("%d - Add new Equipment\n", Add);
+    printf("%d - Remove Equipment\n", Remove);
     printf("%d - Return\n", Back);
     printf("Option: ");
     scanf("%d", &ans);
